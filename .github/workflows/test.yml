@@ -1,0 +1,17 @@
+name: Test Action
+on:
+  workflow_dispatch:
+  push:
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run action
+        uses: ./
+        with:
+          xcresult-path: ".github/TestData/single_module.xcresult"
+          verbose: "true"
+          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

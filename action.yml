@@ -1,0 +1,47 @@
+name: "XCTest alert slack"
+description: "GitHub Action that sends XCTest failure notifications to Slack"
+author: "k-kohey"
+inputs:
+  xcresult-path:
+    description: "The path to the xcresult file"
+    required: true
+  verbose:
+    description: "Enable verbose output"
+    required: false
+    default: "false"
+  slack-bot-token:
+    description: "Slack bot token"
+    required: false
+  channel-id:
+    description: "Slack channel ID to send the message to"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: "3.0"
+    - name: Create Payload
+      id: create-payload
+      run: |
+        ruby runner.rb --xcresult_path "${{ inputs.xcresult-path }}" \
+          --verbose "${{ inputs.verbose }}" \
+          --output payload.json \
+          --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      shell: bash
+    - name: Check file existence
+      id: check_files
+      uses: andstor/file-existence-action@v3
+      with:
+        files: "payload.json"
+    - name: Send message to Slack
+      if: steps.check_files.outputs.files_exists == 'true'
+      uses: slackapi/slack-github-action@v1.25.0
+      with:
+        channel-id: ${{ inputs.channel-id }}
+        payload-file-path: "payload.json"
+      env:
+        SLACK_BOT_TOKEN: ${{ inputs.slack-bot-token || env.SLACK_BOT_TOKEN }}
