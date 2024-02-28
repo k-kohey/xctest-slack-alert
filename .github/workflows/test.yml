@@ -11,7 +11,7 @@ jobs:
         uses: ./
         with:
           xcresult-path: ".github/TestData/single_module.xcresult"
-          verbose: "true"
           channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          RUNNER_DEBUG: true
