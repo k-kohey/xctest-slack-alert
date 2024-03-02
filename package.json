@@ -1,0 +1,16 @@
+{
+  "name": "xctest-slack-alert",
+  "version": "1.0.0",
+  "description": "A GitHub Action that sends XCTest failure notifications to Slack",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@slack/web-api": "^7.0.2"
+  }
+}
