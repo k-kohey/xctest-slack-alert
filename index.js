@@ -6,6 +6,7 @@ const { execSync } = require('child_process');
 try {
   const xcresultPath = core.getInput('xcresult-path', { required: true });
   const slackBotToken = core.getInput('slack-bot-token') || process.env.SLACK_BOT_TOKEN;
+  core.setSecret(slackBotToken);
   const channelId = core.getInput('channel-id', { required: true });
 
   function runCommand(command) {
@@ -23,6 +24,7 @@ try {
   function getFailedTestIds(xcresultPath) {
     const command = `xcrun xcresulttool get --path ${xcresultPath} --format json | jq -r '.actions._values[] | select(.actionResult.testsRef != null) | .actionResult.testsRef.id._value'`;
     const ids = runCommand(command).trim().split(/\n/);
+    core.debug(`Failed test ids: ${ids}`);
     return ids.length === 0 ? null : ids;
   }
 
@@ -93,6 +95,7 @@ try {
   const outputPath = 'payload.json';
   const payload = generatePayload(runUrl, failedTests);
   fs.writeFileSync(path.resolve(outputPath), payload, 'utf-8');
+  core.debug(`Payload: ${payload}`);
   core.info(`Payload written to ${outputPath}`);
 
   if (!fs.existsSync(outputPath)) {
