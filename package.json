@@ -4,7 +4,7 @@
   "description": "A GitHub Action that sends XCTest failure notifications to Slack",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -12,5 +12,8 @@
   "dependencies": {
     "@actions/core": "^1.10.1",
     "@slack/web-api": "^7.0.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }
