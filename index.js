@@ -27,7 +27,17 @@ try {
   }
 
   function getTestDetails(xcresultPath, id) {
-    const command = `xcrun xcresulttool get --path ${xcresultPath} --format json --id ${id}`;
+    const command = `
+    xcrun xcresulttool get --path ${xcresultPath} --format json --id ${id} | \
+    jq '.summaries._values[].testableSummaries._values[] | \
+    {module: .name._value, identifierURL: .identifierURL._value, \
+      projectRelativePath: .projectRelativePath._value, targetName: .targetName._value, tests: [.tests._values[]? | \
+    {name: .name._value, subtests: [.subtests._values[]? | \
+    {name: .name._value, subtests: [.subtests._values[]? | \
+    {name: .name._value, subtests: [.subtests._values[]? | \
+    {name: .name._value, testStatus: .testStatus._value, identifier: .identifier._value, duration: .duration._value} | \
+    select(.testStatus == \"Failure\")]}]}]}]}'
+    `;
     const result = runCommand(command);
     return JSON.parse(result);
   }
