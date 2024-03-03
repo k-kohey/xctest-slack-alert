@@ -83,5 +83,5 @@ test('makePayload includes all necessary information in payload', () => {
           }
         ]
       };
-    expect(JSON.parse(result)).toEqual(expected);
+    expect(result).toEqual(expected);
 });

@@ -74,16 +74,9 @@ try {
     return formatTestDetails(details);
   });
 
-  const outputPath = 'payload.json';
   const payload = makePayload(failedTests);
-  fs.writeFileSync(path.resolve(outputPath), payload, 'utf-8');
   core.debug(`Payload: ${payload}`);
-  core.info(`Payload written to ${outputPath}`);
-
-  if (!fs.existsSync(outputPath)) {
-    core.setFailed('Payload file does not exist');
-  }
-
+  
   const slackAction = require('@slack/web-api');
   const { WebClient } = slackAction;
   const web = new WebClient(slackBotToken);
@@ -91,7 +84,7 @@ try {
   web.chat.postMessage({
     channel: channelId,
     text: ':red_circle: XCTest is failed',
-    blocks: JSON.parse(payload).blocks
+    blocks: payload.blocks
   }).catch(error => {
     core.setFailed(`Slack message sending failed: ${error}`);
   });

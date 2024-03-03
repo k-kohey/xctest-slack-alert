@@ -15,7 +15,7 @@ function makePayload(
       ]
     })));
 
-    return JSON.stringify({ blocks }, null, 2);
+    return { blocks };
   }
 
   module.exports = { makePayload };
