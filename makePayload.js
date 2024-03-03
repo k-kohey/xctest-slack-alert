@@ -1,4 +1,4 @@
-export function makePayload(
+function makePayload(
     failedTests,
     runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
   ) {
@@ -17,3 +17,5 @@ export function makePayload(
 
     return JSON.stringify({ blocks }, null, 2);
   }
+
+  module.exports = { makePayload };
