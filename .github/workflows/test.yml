@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
   push:
 jobs:
-  test:
+  action_test:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Run action
         uses: ./
         with:
@@ -15,3 +15,11 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           ACTIONS_STEP_DEBUG: true
+  unit_test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: npm install
+        run: npm install
+      - name: npm test
+        run: npm test

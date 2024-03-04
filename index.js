@@ -2,6 +2,7 @@ const core = require('@actions/core');
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { makePayload } = require('./makePayload');
 
 try {
   const xcresultPath = core.getInput('xcresult-path', { required: true });
@@ -62,24 +63,6 @@ try {
     });
   }
 
-  function generatePayload(runUrl, failedTests) {
-    const blocks = [
-      { type: 'section', text: { type: 'plain_text', text: `:red_circle: XCTest is failed at ${runUrl}`, emoji: true } },
-      { type: 'divider' }
-    ].concat(failedTests.map(test => ({
-      type: 'section',
-      fields: [
-        { type: 'mrkdwn', text: `*Test Name:*\n${test.name}` },
-        { type: 'mrkdwn', text: `*Duration:*\n${test.duration}` },
-        { type: 'mrkdwn', text: `*Module:*\n${test.module}` },
-        { type: 'mrkdwn', text: `*Test Case:*\n${test.testCaseName}` }
-      ]
-    })));
-
-    return JSON.stringify({ blocks }, null, 2);
-  }
-
-
   const failedTestIds = getFailedTestIds(xcresultPath);
   if (!failedTestIds) {
     core.info('No failed tests found');
@@ -91,17 +74,9 @@ try {
     return formatTestDetails(details);
   });
 
-  const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
-  const outputPath = 'payload.json';
-  const payload = generatePayload(runUrl, failedTests);
-  fs.writeFileSync(path.resolve(outputPath), payload, 'utf-8');
+  const payload = makePayload(failedTests);
   core.debug(`Payload: ${payload}`);
-  core.info(`Payload written to ${outputPath}`);
-
-  if (!fs.existsSync(outputPath)) {
-    core.setFailed('Payload file does not exist');
-  }
-
+  
   const slackAction = require('@slack/web-api');
   const { WebClient } = slackAction;
   const web = new WebClient(slackBotToken);
@@ -109,7 +84,7 @@ try {
   web.chat.postMessage({
     channel: channelId,
     text: ':red_circle: XCTest is failed',
-    blocks: JSON.parse(payload).blocks
+    blocks: payload.blocks
   }).catch(error => {
     core.setFailed(`Slack message sending failed: ${error}`);
   });
