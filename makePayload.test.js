@@ -52,9 +52,8 @@ test('makePayload includes all necessary information in payload', () => {
           {
             "type": "section",
             "text": {
-              "type": "plain_text",
-              "text": ":red_circle: XCTest is failed at https://example.com",
-              "emoji": true
+              "type": "mrkdwn",
+              "text": ":red_circle: XCTest is failed at https://example.com"
             }
           },
           {
