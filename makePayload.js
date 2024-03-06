@@ -3,7 +3,7 @@ function makePayload(
     runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
   ) {
     const blocks = [
-      { type: 'section', text: { type: 'plain_text', text: `:red_circle: XCTest is failed at ${runUrl}`, emoji: true } },
+      { type: 'section', text: { type: 'mrkdwn', text: `:red_circle: XCTest is failed at ${runUrl}`} },
       { type: 'divider' }
     ].concat(failedTests.map(test => ({
       type: 'section',
