@@ -21,35 +21,36 @@ function getFailedTestIds(xcresultPath) {
 }
 
 function getTestDetails(xcresultPath, id) {
-    const command = `
+    const command =     `
     xcrun xcresulttool get --path ${xcresultPath} --format json --id ${id} | \
-    jq '.summaries._values[].testableSummaries._values[] | \
-    {module: .name._value, identifierURL: .identifierURL._value, \
-        projectRelativePath: .projectRelativePath._value, targetName: .targetName._value, tests: [.tests._values[]? | \
+    jq -s '. | map(.summaries._values[].testableSummaries._values[] | \
+    {module: .name._value, identifierURL: .identifierURL._value, projectRelativePath: .projectRelativePath._value, targetName: .targetName._value, tests: [.tests._values[]? | \
     {name: .name._value, subtests: [.subtests._values[]? | \
     {name: .name._value, subtests: [.subtests._values[]? | \
     {name: .name._value, subtests: [.subtests._values[]? | \
     {name: .name._value, testStatus: .testStatus._value, identifier: .identifier._value, duration: .duration._value} | \
-    select(.testStatus == \"Failure\")]}]}]}]}'
+    select(.testStatus == "Failure")]}]}]}]})'
     `;
     const result = runCommand(command);
     return JSON.parse(result);
 }
 
-function formatTestDetails(details) {
-    return details.tests.flatMap(test => {
-        return test.subtests.flatMap(subtest => {
-        return subtest.subtests.flatMap(testCase => {
-            return testCase.subtests.filter(failedTest => failedTest.testStatus === 'Failure').map(failedTest => {
-            const durationRounded = parseFloat(failedTest.duration).toFixed(3);
-            return {
-                name: failedTest.name,
-                duration: durationRounded,
-                module: details.module,
-                testCaseName: testCase.name
-            };
+function formatTestDetails(detailsArray) {
+    return detailsArray.flatMap(details => {
+        return details.tests.flatMap(test => {
+            return test.subtests.flatMap(subtest => {
+                return subtest.subtests.flatMap(testCase => {
+                    return testCase.subtests.filter(failedTest => failedTest.testStatus === 'Failure').map(failedTest => {
+                        const durationRounded = parseFloat(failedTest.duration).toFixed(3);
+                        return {
+                            name: failedTest.name,
+                            duration: durationRounded,
+                            module: details.module,
+                            testCaseName: testCase.name
+                        };
+                    });
+                });
             });
-        });
         });
     });
 }
